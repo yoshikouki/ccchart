@@ -163,17 +163,28 @@ export function fillMissingDays(usage: DailyUsage[]): DailyUsage[] {
 }
 
 /**
- * プロジェクトの全使用量データを取得
+ * 過去30日間のデータのみをフィルタリング
+ */
+export function filterLast30Days(usage: DailyUsage[]): DailyUsage[] {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+  const cutoffDate = thirtyDaysAgo.toISOString().split("T")[0] as string;
+
+  return usage.filter((item) => item.date >= cutoffDate);
+}
+
+/**
+ * プロジェクトの過去30日間の使用量データを取得
  */
 export async function getProjectUsageData(projectPath: string): Promise<DailyUsage[]> {
   const exists = await checkProjectExists(projectPath);
   if (!exists) {
-    throw new Error(`Claude Code project not found for path: ${projectPath}`);
+    return fillMissingDays([]); // プロジェクトが存在しない場合は空データで30日分返す
   }
 
   const jsonlFiles = await getJsonlFiles(projectPath);
   if (jsonlFiles.length === 0) {
-    return fillMissingDays([]); // 空の場合も30日分返す
+    return fillMissingDays([]); // ファイルがない場合も30日分返す
   }
 
   const allEntries: ClaudeLogEntry[] = [];
@@ -186,6 +197,7 @@ export async function getProjectUsageData(projectPath: string): Promise<DailyUsa
     }
   }
 
-  const dailyUsage = aggregateDailyUsage(allEntries);
-  return fillMissingDays(dailyUsage);
+  const allDailyUsage = aggregateDailyUsage(allEntries);
+  const last30DaysUsage = filterLast30Days(allDailyUsage);
+  return fillMissingDays(last30DaysUsage);
 }
