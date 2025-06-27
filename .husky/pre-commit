@@ -1,1 +1,2 @@
-echo "pre-commit hook is running with Bun"
+bun format
+bun typecheck
