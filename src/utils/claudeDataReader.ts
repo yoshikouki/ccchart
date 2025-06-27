@@ -122,6 +122,47 @@ export function aggregateDailyUsage(entries: ClaudeLogEntry[]): DailyUsage[] {
 }
 
 /**
+ * 過去30日間の日付範囲を生成（今日を含む）
+ */
+export function generateLast30Days(): string[] {
+  const dates: string[] = [];
+  const today = new Date();
+
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    dates.push(date.toISOString().split("T")[0] as string);
+  }
+
+  return dates;
+}
+
+/**
+ * 日別使用量データを過去30日間で補完
+ */
+export function fillMissingDays(usage: DailyUsage[]): DailyUsage[] {
+  const dates = generateLast30Days();
+  const usageMap = new Map(usage.map((item) => [item.date, item]));
+
+  return dates.map((date) => {
+    const existing = usageMap.get(date);
+    if (existing) {
+      return existing;
+    }
+
+    // データがない日は0で埋める
+    return {
+      date,
+      inputTokens: 0,
+      outputTokens: 0,
+      totalTokens: 0,
+      cost: 0,
+      messageCount: 0,
+    };
+  });
+}
+
+/**
  * プロジェクトの全使用量データを取得
  */
 export async function getProjectUsageData(projectPath: string): Promise<DailyUsage[]> {
@@ -132,7 +173,7 @@ export async function getProjectUsageData(projectPath: string): Promise<DailyUsa
 
   const jsonlFiles = await getJsonlFiles(projectPath);
   if (jsonlFiles.length === 0) {
-    return [];
+    return fillMissingDays([]); // 空の場合も30日分返す
   }
 
   const allEntries: ClaudeLogEntry[] = [];
@@ -145,5 +186,6 @@ export async function getProjectUsageData(projectPath: string): Promise<DailyUsa
     }
   }
 
-  return aggregateDailyUsage(allEntries);
+  const dailyUsage = aggregateDailyUsage(allEntries);
+  return fillMissingDays(dailyUsage);
 }

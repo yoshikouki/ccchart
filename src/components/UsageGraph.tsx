@@ -13,18 +13,10 @@ interface UsageGraphProps {
 }
 
 export const UsageGraph: React.FC<UsageGraphProps> = ({ data }) => {
-  const tokenData = data.map((d) => d.tokens);
   const costData = data.map((d) => d.cost);
 
-  const tokenChart = plot(tokenData, {
-    height: 8,
-    padding: "      ",
-    colors: ["\x1b[36m"], // cyan
-    format: (x: number) => `${(x / 1000).toFixed(1)}k`,
-  });
-
   const costChart = plot(costData, {
-    height: 6,
+    height: 12,
     padding: "      ",
     colors: ["\x1b[32m"], // green
     format: (x: number) => `$${x.toFixed(2)}`,
@@ -32,16 +24,9 @@ export const UsageGraph: React.FC<UsageGraphProps> = ({ data }) => {
 
   return (
     <Box flexDirection="column" marginTop={1}>
-      <Text color="cyan" bold>
-        📈 日別トークン使用量
+      <Text color="green" bold>
+        💰 日別コスト (過去30日)
       </Text>
-      <Text>{tokenChart}</Text>
-
-      <Box marginTop={1}>
-        <Text color="green" bold>
-          💰 日別コスト ($)
-        </Text>
-      </Box>
       <Text>{costChart}</Text>
 
       <Box marginTop={1}>
