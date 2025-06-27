@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ccgraph は Claude Code の使用量を React Ink を使って CLI 上でグラフ表示するプロジェクトです。`npx ccgraph@latest` のような実行で使用量グラフを表示することを目標としており、まずは日別グラフの PoC から作成します。
+ccgraph は Claude Code の使用量を React Ink を使用して CLI 上でグラフ表示するプロジェクトである。`npx ccgraph@latest` のような実行で使用量グラフを表示することを目標とし、まずは日別グラフの PoC から開発を進める。
 
 ## Development Principles
 
@@ -60,16 +60,19 @@ ccgraph は Claude Code の使用量を React Ink を使って CLI 上でグラ�
 ## Project Structure
 
 - `src/` - Main source code
-- `docs/` - Claude Code や React Ink について自明でないことや記録するべき情報
+- `docs/` - Claude Code や React Ink について自明でない事項や記録すべき情報
 - `index.ts` - Entry point (currently placeholder)
 - Configuration files: `biome.json`, `tsconfig.json`, `vitest.config.ts`
 
 ## Development Rules
 
-1. Claude Code や React Ink について自明でないことは `./docs` に記録する
-2. ルールとして適切なものは `./CLAUDE.md` にも記載する
-3. 変更を加えた度に commit を行う
-4. React Ink の依存関係は後で追加する必要がある
+1. Claude Code や React Ink について自明でない事項は `./docs` に記録すること
+2. ルールとして適切なものは `./CLAUDE.md` にも記載すること
+3. 変更を加えるたびに commit を実行すること
+4. 最新のドキュメントを必ず参照し、それに準拠した実装を行うこと
+5. ライブラリ導入時は必ず公式ドキュメントや最新の情報を Web 検索で確認すること
+6. 依存関係のインストールには Bun を使用し、npm や yarn は使用しないこと
+7. **MUST**: 依存関係を操作する際は必ず package.json を確認すること
 
 ## TypeScript Configuration
 
