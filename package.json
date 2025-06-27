@@ -22,5 +22,11 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/react": "^19.1.8",
+    "asciichart": "^1.5.25",
+    "ink": "^6.0.1",
+    "react": "^19.1.0"
   }
 }
