@@ -31,6 +31,7 @@ export interface ClaudeLogEntry {
   cwd: string;
   version: string;
   message: ClaudeMessage;
+  requestId?: string; // リクエストID（重複除去用）
 }
 
 export interface DailyUsage {

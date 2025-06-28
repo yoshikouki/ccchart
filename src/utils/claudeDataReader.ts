@@ -81,18 +81,28 @@ export function aggregateDailyUsage(entries: ClaudeLogEntry[]): DailyUsage[] {
       continue;
     }
 
+    // <synthetic>モデルはスキップ（実際のAPIコールではない）
+    if (entry.message.model === "<synthetic>") {
+      continue;
+    }
+
     const timestamp = entry.timestamp;
     if (!timestamp) {
       continue; // timestampがない場合はスキップ
     }
 
-    // 重複除去: UUID + timestamp でユニーク性を確保
-    const entryKey = `${entry.uuid}-${timestamp}`;
-    if (processedEntries.has(entryKey)) {
-      console.warn(`Duplicate entry skipped: ${entryKey}`);
-      continue;
+    // 重複除去: messageId + requestId でユニーク性を確保（ccusageと同じ方式）
+    const messageId = entry.message.id;
+    const requestId = entry.requestId;
+
+    // messageIdとrequestIdの両方がある場合のみ重複チェック
+    if (messageId && requestId) {
+      const entryKey = `${messageId}:${requestId}`;
+      if (processedEntries.has(entryKey)) {
+        continue;
+      }
+      processedEntries.add(entryKey);
     }
-    processedEntries.add(entryKey);
 
     const date = new Date(timestamp).toISOString().split("T")[0] as string; // YYYY-MM-DD
     const usage = entry.message.usage;
