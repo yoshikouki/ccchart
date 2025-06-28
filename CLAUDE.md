@@ -55,13 +55,20 @@ ccgraph は Claude Code の使用量を React Ink を使用して CLI 上でグ�
 - `bun run test:watch` - Run tests in watch mode
 - `bun run lint` - Lint the codebase
 - `bun run format` - Format and auto-fix code
+- `bun run format:unsafe` - Format with unsafe fixes
 - `bun run typecheck` - Type check without emitting files
+- `./index.tsx` - Run the CLI tool directly
+- `./index.tsx --debug` - Run with debug output
 
 ## Project Structure
 
 - `src/` - Main source code
+  - `App.tsx` - Main React Ink application component
+  - `components/` - Reusable UI components (UsageGraph, etc.)
+  - `types/` - TypeScript type definitions for Claude data structures
+  - `utils/` - Utility functions for data processing and file operations
 - `docs/` - Claude Code や React Ink について自明でない事項や記録すべき情報
-- `index.ts` - Entry point (currently placeholder)
+- `index.tsx` - CLI entry point with shebang for direct execution
 - Configuration files: `biome.json`, `tsconfig.json`, `vitest.config.ts`
 
 ## Development Rules
@@ -96,3 +103,25 @@ ccgraph は Claude Code の使用量を React Ink を使用して CLI 上でグ�
 - Coverage configured with v8 provider
 - Test environment: Node.js
 - Global test functions enabled
+
+## Claude Data Architecture
+
+The application reads Claude Code usage data from `~/.claude/projects/` directory:
+
+- **Data Source**: JSONL files in project-specific directories
+- **Data Processing**: 
+  - Parses Claude log entries with usage information
+  - Aggregates token usage (input, output, cache) by date
+  - Calculates costs based on model type (Sonnet vs Opus)
+  - Fills missing days with zero values for consistent 30-day display
+- **Key Types**:
+  - `ClaudeLogEntry`: Raw log entry structure from JSONL files
+  - `DailyUsage`: Aggregated daily usage with tokens and cost
+  - `TOKEN_PRICES`: Current Anthropic pricing constants
+
+## React Ink UI Pattern
+
+- **Entry Point**: `index.tsx` renders `<App>` component
+- **State Management**: React hooks for loading, error, and data states
+- **Data Flow**: App loads data → UsageGraph displays chart
+- **Debug Mode**: `--debug` flag enables verbose console output to stderr

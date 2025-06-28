@@ -202,12 +202,18 @@ export function filterLast30Days(usage: DailyUsage[]): DailyUsage[] {
 /**
  * 全プロジェクトの使用量データを取得
  */
-export async function getAllProjectsUsageData(): Promise<DailyUsage[]> {
+export async function getAllProjectsUsageData(debugMode = false): Promise<DailyUsage[]> {
   const claudeProjectsDir = join(homedir(), ".claude", "projects");
 
   try {
     const projectDirs = await readdir(claudeProjectsDir);
     const allEntries: ClaudeLogEntry[] = [];
+    let totalFiles = 0;
+
+    // デバッグ情報を stderr に出力（UIと混在を避ける）
+    if (debugMode) {
+      console.error(`📁 Found ${projectDirs.length} project directories`);
+    }
 
     for (const projectDir of projectDirs) {
       const fullProjectPath = join(claudeProjectsDir, projectDir);
@@ -221,6 +227,11 @@ export async function getAllProjectsUsageData(): Promise<DailyUsage[]> {
           .filter((file) => file.endsWith(".jsonl"))
           .map((file) => join(fullProjectPath, file));
 
+        totalFiles += jsonlFiles.length;
+        if (debugMode && jsonlFiles.length > 0) {
+          console.error(`📂 ${projectDir}: ${jsonlFiles.length} JSONL files`);
+        }
+
         for (const file of jsonlFiles) {
           try {
             const entries = await parseJsonlFile(file);
@@ -232,6 +243,10 @@ export async function getAllProjectsUsageData(): Promise<DailyUsage[]> {
       } catch (error) {
         console.warn(`Failed to process project ${projectDir}:`, error);
       }
+    }
+
+    if (debugMode) {
+      console.error(`📊 Total: ${totalFiles} files, ${allEntries.length} entries`);
     }
 
     const allDailyUsage = aggregateDailyUsage(allEntries);

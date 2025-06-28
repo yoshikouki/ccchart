@@ -26,26 +26,31 @@ export const UsageGraph: React.FC<UsageGraphProps> = ({ data }) => {
   // X軸ラベル用の日付を生成
   const generateXAxisLabels = () => {
     const totalWidth = data.length;
-    const labelPositions = [0, Math.floor(totalWidth / 3), Math.floor((totalWidth * 2) / 3), totalWidth - 1];
-    
+    const labelPositions = [
+      0,
+      Math.floor(totalWidth / 3),
+      Math.floor((totalWidth * 2) / 3),
+      totalWidth - 1,
+    ];
+
     let labelLine = "";
     let lastLabelEnd = 0;
-    
-    labelPositions.forEach((pos, index) => {
+
+    labelPositions.forEach((pos, _index) => {
       if (pos >= data.length) return;
-      
-      const date = new Date(data[pos].date);
+
+      const date = new Date(data[pos]?.date || "");
       const label = `${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`;
-      
+
       // 前のラベルの終了位置から現在のラベル位置まで空白で埋める
       const spacesToAdd = pos - lastLabelEnd;
       labelLine += " ".repeat(Math.max(0, spacesToAdd));
-      
+
       // ラベルを追加
       labelLine += label;
       lastLabelEnd = pos + label.length;
     });
-    
+
     return `       ${labelLine}`; // offsetに合わせて左側にパディング
   };
 

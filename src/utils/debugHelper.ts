@@ -39,7 +39,7 @@ export function debugCostCalculation(entry: ClaudeLogEntry) {
   const cacheReadTokens = usage.cache_read_input_tokens || 0;
 
   let cost = 0;
-  let breakdown = {
+  const breakdown = {
     inputCost: 0,
     outputCost: 0,
     cacheCreationCost: 0,
@@ -58,7 +58,11 @@ export function debugCostCalculation(entry: ClaudeLogEntry) {
     breakdown.cacheReadCost = cacheReadTokens * TOKEN_PRICES.SONNET_CACHE_READ;
   }
 
-  cost = breakdown.inputCost + breakdown.outputCost + breakdown.cacheCreationCost + breakdown.cacheReadCost;
+  cost =
+    breakdown.inputCost +
+    breakdown.outputCost +
+    breakdown.cacheCreationCost +
+    breakdown.cacheReadCost;
 
   return {
     timestamp: entry.timestamp,

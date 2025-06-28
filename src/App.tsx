@@ -10,7 +10,11 @@ interface UsageData {
   cost: number;
 }
 
-export const App = () => {
+interface AppProps {
+  debugMode?: boolean;
+}
+
+export const App = ({ debugMode = false }: AppProps) => {
   const [data, setData] = useState<UsageData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +23,7 @@ export const App = () => {
     const loadData = async () => {
       try {
         // 全プロジェクトのデータを取得
-        const claudeUsageData = await getAllProjectsUsageData();
+        const claudeUsageData = await getAllProjectsUsageData(debugMode);
 
         // 実データを常に使用（30日分、データがない日は0で埋められる）
         const convertedData = claudeUsageData.map((item: DailyUsage) => ({
@@ -39,7 +43,7 @@ export const App = () => {
     };
 
     loadData();
-  }, []);
+  }, [debugMode]);
 
   if (loading) {
     return (
@@ -54,11 +58,6 @@ export const App = () => {
 
   return (
     <Box flexDirection="column" padding={1}>
-      <Text color="cyan" bold>
-        📊 ccgraph - Claude Code Usage Graph
-      </Text>
-      <Text>Claude Code の使用量をグラフで表示します</Text>
-
       {error && <Text color="red">⚠️ Error: {error}</Text>}
 
       <UsageGraph data={data} />
