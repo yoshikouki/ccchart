@@ -2,7 +2,7 @@ import { Box, Text } from "ink";
 import { useEffect, useState } from "react";
 import { UsageGraph } from "./components/UsageGraph.js";
 import type { DailyUsage } from "./types/claudeData.js";
-import { getAllProjectsUsageData } from "./utils/claudeDataReader.js";
+import { getCcusageUsageData } from "./utils/ccusageReader.js";
 
 interface UsageData {
   date: string;
@@ -22,8 +22,8 @@ export const App = ({ debugMode = false }: AppProps) => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 全プロジェクトのデータを取得
-        const claudeUsageData = await getAllProjectsUsageData(debugMode);
+        // ccusageからデータを取得
+        const claudeUsageData = await getCcusageUsageData(debugMode);
 
         // 実データを常に使用（30日分、データがない日は0で埋められる）
         const convertedData = claudeUsageData.map((item: DailyUsage) => ({
@@ -33,7 +33,7 @@ export const App = ({ debugMode = false }: AppProps) => {
         }));
         setData(convertedData);
       } catch (err) {
-        console.warn("Failed to load Claude Code data:", err);
+        console.warn("Failed to load ccusage data:", err);
         setError(err instanceof Error ? err.message : "Unknown error");
         // エラーの場合も空の30日データを表示
         setData([]);

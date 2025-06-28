@@ -117,3 +117,47 @@ Claude Codeでは大量のコンテキストがキャッシュされるため、
 ## 精度検証
 
 この計算方式により、他の同等ツールと±$1以内の精度で料金推計が可能です。
+
+## ccusageツールとの価格計算差分
+
+### 主要な違い
+
+#### 1. 価格データソース
+- **ccgraph**: 固定価格（TOKEN_PRICES 2024年12月時点）
+- **ccusage**: LiteLLM API からリアルタイム価格取得（フォールバック時は事前取得データ）
+
+#### 2. 価格精度
+- **ccgraph**: 手動更新された価格（$3.00/1M, $15.00/1M等）
+- **ccusage**: LiteLLMの最新価格（微細な差異の可能性）
+
+#### 3. モデル名判定
+- **ccgraph**: `model.includes("opus")` での簡単判定
+- **ccusage**: 複数バリエーションでの詳細マッチング
+
+```typescript
+// ccusage のマッチング例
+const variations = [
+  modelName,
+  `anthropic/${modelName}`,
+  `claude-3-5-${modelName}`,
+  `claude-3-${modelName}`,
+  `claude-${modelName}`,
+];
+```
+
+#### 4. 実装アーキテクチャ
+- **ccgraph**: 直接的な計算ロジック
+- **ccusage**: PricingFetcher クラスによる抽象化
+
+### 価格差の原因
+
+1. **LiteLLM API の価格更新**: ccgraph の固定価格と現在の価格に差異
+2. **モデル名マッピング**: 異なるモデル判定により別価格が適用される可能性
+3. **キャッシュトークン価格**: 5分/1時間キャッシュの価格差（ccgraph は5分キャッシュ想定）
+
+### 推奨対応
+
+ccusage との価格一致を目指す場合：
+1. LiteLLM API を利用した動的価格取得の実装
+2. ccusage と同様のモデル名マッチングロジックの採用
+3. 定期的な価格更新メカニズムの導入
