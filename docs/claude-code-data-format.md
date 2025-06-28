@@ -1,4 +1,4 @@
-# Claude Code 使用量 API 情報
+# Claude Code データ形式と実装調査
 
 ## 使用量データの保存場所
 
@@ -21,7 +21,7 @@ Claude Code は使用履歴を JSONL 形式で `~/.claude/projects/` 下にロ�
 
 ## 料金体系 (2025年現在)
 
-### API 従量課金
+### 従量課金
 - Claude 4 Opus: $15/1M入力, $75/1M出力
 - Claude 3.5 Sonnet: $3/1M入力, $15/1M出力
 - Claude 3 Haiku: 最も安価
