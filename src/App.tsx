@@ -2,7 +2,7 @@ import { Box, Text } from "ink";
 import { useEffect, useState } from "react";
 import { UsageGraph } from "./components/UsageGraph.js";
 import type { DailyUsage } from "./types/claudeData.js";
-import { getProjectUsageData } from "./utils/claudeDataReader.js";
+import { getAllProjectsUsageData } from "./utils/claudeDataReader.js";
 
 interface UsageData {
   date: string;
@@ -18,8 +18,8 @@ export const App = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const currentDir = process.cwd();
-        const claudeUsageData = await getProjectUsageData(currentDir);
+        // 全プロジェクトのデータを取得
+        const claudeUsageData = await getAllProjectsUsageData();
 
         // 実データを常に使用（30日分、データがない日は0で埋められる）
         const convertedData = claudeUsageData.map((item: DailyUsage) => ({

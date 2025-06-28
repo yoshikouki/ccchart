@@ -73,6 +73,7 @@ export async function parseJsonlFile(filePath: string): Promise<ClaudeLogEntry[]
  */
 export function aggregateDailyUsage(entries: ClaudeLogEntry[]): DailyUsage[] {
   const dailyMap = new Map<string, DailyUsage>();
+  const processedEntries = new Set<string>(); // 重複除去用
 
   for (const entry of entries) {
     // assistantメッセージのみ使用量を集計（userメッセージは通常usageがない）
@@ -84,16 +85,41 @@ export function aggregateDailyUsage(entries: ClaudeLogEntry[]): DailyUsage[] {
     if (!timestamp) {
       continue; // timestampがない場合はスキップ
     }
+
+    // 重複除去: UUID + timestamp でユニーク性を確保
+    const entryKey = `${entry.uuid}-${timestamp}`;
+    if (processedEntries.has(entryKey)) {
+      console.warn(`Duplicate entry skipped: ${entryKey}`);
+      continue;
+    }
+    processedEntries.add(entryKey);
+
     const date = new Date(timestamp).toISOString().split("T")[0] as string; // YYYY-MM-DD
     const usage = entry.message.usage;
 
     const inputTokens = usage.input_tokens || 0;
     const outputTokens = usage.output_tokens || 0;
-    const totalTokens = inputTokens + outputTokens;
+    const cacheCreationTokens = usage.cache_creation_input_tokens || 0;
+    const cacheReadTokens = usage.cache_read_input_tokens || 0;
+    const totalTokens = inputTokens + outputTokens + cacheCreationTokens + cacheReadTokens;
 
-    // コスト計算（Claude 3.5 Sonnet価格を使用）
-    const cost =
-      inputTokens * TOKEN_PRICES.SONNET_INPUT + outputTokens * TOKEN_PRICES.SONNET_OUTPUT;
+    // モデルに基づいてコスト計算
+    const model = entry.message.model || "claude-sonnet";
+    const isOpus = model.includes("opus");
+
+    let cost = 0;
+    if (isOpus) {
+      cost = inputTokens * TOKEN_PRICES.OPUS_INPUT + outputTokens * TOKEN_PRICES.OPUS_OUTPUT;
+      cost +=
+        cacheCreationTokens * TOKEN_PRICES.OPUS_CACHE_WRITE +
+        cacheReadTokens * TOKEN_PRICES.OPUS_CACHE_READ;
+    } else {
+      cost =
+        inputTokens * TOKEN_PRICES.SONNET_INPUT + outputTokens * TOKEN_PRICES.SONNET_OUTPUT;
+      cost +=
+        cacheCreationTokens * TOKEN_PRICES.SONNET_CACHE_WRITE +
+        cacheReadTokens * TOKEN_PRICES.SONNET_CACHE_READ;
+    }
 
     if (!dailyMap.has(date)) {
       dailyMap.set(date, {
@@ -171,6 +197,50 @@ export function filterLast30Days(usage: DailyUsage[]): DailyUsage[] {
   const cutoffDate = thirtyDaysAgo.toISOString().split("T")[0] as string;
 
   return usage.filter((item) => item.date >= cutoffDate);
+}
+
+/**
+ * 全プロジェクトの使用量データを取得
+ */
+export async function getAllProjectsUsageData(): Promise<DailyUsage[]> {
+  const claudeProjectsDir = join(homedir(), ".claude", "projects");
+
+  try {
+    const projectDirs = await readdir(claudeProjectsDir);
+    const allEntries: ClaudeLogEntry[] = [];
+
+    for (const projectDir of projectDirs) {
+      const fullProjectPath = join(claudeProjectsDir, projectDir);
+
+      try {
+        const projectStat = await stat(fullProjectPath);
+        if (!projectStat.isDirectory()) continue;
+
+        const files = await readdir(fullProjectPath);
+        const jsonlFiles = files
+          .filter((file) => file.endsWith(".jsonl"))
+          .map((file) => join(fullProjectPath, file));
+
+        for (const file of jsonlFiles) {
+          try {
+            const entries = await parseJsonlFile(file);
+            allEntries.push(...entries);
+          } catch (error) {
+            console.warn(`Failed to parse ${file}:`, error);
+          }
+        }
+      } catch (error) {
+        console.warn(`Failed to process project ${projectDir}:`, error);
+      }
+    }
+
+    const allDailyUsage = aggregateDailyUsage(allEntries);
+    const last30DaysUsage = filterLast30Days(allDailyUsage);
+    return fillMissingDays(last30DaysUsage);
+  } catch (error) {
+    console.warn("Failed to access Claude projects directory:", error);
+    return fillMissingDays([]);
+  }
 }
 
 /**
