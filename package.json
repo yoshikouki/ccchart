@@ -26,6 +26,7 @@
     "@types/bun": "latest",
     "@types/node": "^24.0.4",
     "husky": "^9.1.7",
+    "ink-testing-library": "^4.0.0",
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
