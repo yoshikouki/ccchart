@@ -1,10 +1,10 @@
 {
-  "name": "ccgraph",
+  "name": "ccchart",
   "version": "0.1.0",
-  "description": "Claude Code usage graph CLI tool with React Ink",
+  "description": "Claude Code usage chart CLI tool with React Ink",
   "main": "index.tsx",
   "bin": {
-    "ccgraph": "./index.tsx"
+    "ccchart": "./index.tsx"
   },
   "module": "index.tsx",
   "type": "module",

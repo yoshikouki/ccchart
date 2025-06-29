@@ -17,8 +17,8 @@ export async function debugProjectPaths(projectPath: string) {
   try {
     const claudeProjectsDir = join(homedir(), ".claude", "projects");
     const allProjects = await readdir(claudeProjectsDir);
-    const matchingProjects = allProjects.filter((name) => name.includes("ccgraph"));
-    console.log("  Available ccgraph projects:", matchingProjects);
+    const matchingProjects = allProjects.filter((name) => name.includes("ccchart"));
+    console.log("  Available ccchart projects:", matchingProjects);
   } catch (error) {
     console.log("  Error reading projects dir:", error);
   }

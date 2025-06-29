@@ -1,10 +1,10 @@
-# ccgraph
+# ccchart
 
-Claude Code の使用量を React Ink を使って CLI 上でグラフ表示するためのプロジェクトです。
+Claude Code の使用量を React Ink を使って CLI 上でチャート表示するためのプロジェクトです。
 
 ## 目標
 
-`npx ccgraph@latest` などの実行で、Claude Code の使用量がグラフで表示されるようにします。
+`npx ccchart@latest` などの実行で、Claude Code の使用量がチャートで表示されるようにします。
 まずは日別使用量グラフ表示の PoC として開発を進めています。
 
 ## 開発環境

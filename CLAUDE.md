@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ccgraph は Claude Code の使用量を React Ink を使用して CLI 上でグラフ表示するプロジェクトである。`npx ccgraph@latest` のような実行で使用量グラフを表示することを目標とし、まずは日別グラフの PoC から開発を進める。
+ccchart は Claude Code の使用量を React Ink を使用して CLI 上でチャート表示するプロジェクトである。`npx ccchart@latest` のような実行で使用量チャートを表示することを目標とし、まずは日別チャートの PoC から開発を進める。
 
 ## Development Principles
 

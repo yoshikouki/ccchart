@@ -79,7 +79,7 @@ export async function getCcusageData(debugMode = false): Promise<CcusageOutput> 
 }
 
 /**
- * ccusageのデータをccgraphのDailyUsage形式に変換
+ * ccusageのデータをccchartのDailyUsage形式に変換
  */
 export function convertCcusageToDaily(ccusageData: CcusageOutput): DailyUsage[] {
   return ccusageData.daily.map((item) => ({

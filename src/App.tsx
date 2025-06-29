@@ -49,7 +49,7 @@ export const App = ({ debugMode = false }: AppProps) => {
     return (
       <Box flexDirection="column" padding={1}>
         <Text color="cyan" bold>
-          📊 ccgraph - Claude Code Usage Graph
+          📊 ccchart - Claude Code Usage Chart
         </Text>
         <Text color="yellow">Loading...</Text>
       </Box>
